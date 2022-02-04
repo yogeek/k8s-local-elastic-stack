@@ -24,7 +24,7 @@ daemonset:
           fields: ["message"]
           process_array: false
           max_depth: 1
-          target: ""
+          target: "audit"
           overwrite_keys: false
           add_error_key: true
       output.elasticsearch:

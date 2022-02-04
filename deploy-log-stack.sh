@@ -7,7 +7,7 @@ helm repo add elastic https://helm.elastic.co
 helm repo update
 
 # Timeout for installation
-TIMEOUT=120s
+TIMEOUT=300s
 
 # Deploy Elatics (only 1 replica for 1 node kind cluster)
 helm upgrade -n logging --create-namespace --wait --timeout=${TIMEOUT} --install elasticsearch elastic/elasticsearch --set replicas=1
@@ -17,6 +17,10 @@ helm upgrade -n logging --create-namespace --wait --timeout=${TIMEOUT} --install
 
 # Deploy Kibana
 helm upgrade -n logging --create-namespace --wait --timeout=${TIMEOUT} --install kibana elastic/kibana
+
+# Deploy Logstash
+helm upgrade -n logging --create-namespace --wait --timeout=${TIMEOUT} --install logstash elastic/logstash -f values-logstash.yaml
+
 
 # Wait for all pods to be running
 echo "Waiting for all pods to be ready..."

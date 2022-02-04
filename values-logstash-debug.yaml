@@ -1,0 +1,68 @@
+# persistence:
+#   enabled: true
+
+# Example to parse an argocd log on stdin:
+
+# INPUT :
+# time="2021-10-27T17:12:49Z" level=info msg="Reconciliation completed" application=tinyeh-metadata-ingestion.deploy dedup_ms=0 dest-name= dest-namespace=tinyeh-ingestion dest-server="https://kubernetes.default.svc" diff_ms=2 fields.level=1 git_ms=7 health_ms=0 live_ms=6 settings_ms=0 sync_ms=0 time_ms=41
+
+# RESULT :
+# {
+#       "@timestamp" => 2021-10-27T17:13:01.250Z,
+#         "@version" => "1",
+#             "host" => "5905e58d1cfe",
+#           "argocd" => {
+#            "dest-server" => "https://kubernetes.default.svc",
+#                "diff_ms" => "2",
+#                 "git_ms" => "7",
+#            "settings_ms" => "0",
+#               "dedup_ms" => "0",
+#                "time_ms" => "41",
+#         "dest-namespace" => "tinyeh-ingestion",
+#           "fields.level" => "1",
+#            "application" => "tinyeh-metadata-ingestion.deploy",
+#                "live_ms" => "6",
+#                    "msg" => "Reconciliation completed",
+#              "health_ms" => "0",
+#                "sync_ms" => "0"
+#     },
+#            "level" => "info",
+#          "message" => "time=\"2021-10-27T17:12:49Z\" level=info msg=\"Reconciliation completed\" application=tinyeh-metadata-ingestion.deploy dedup_ms=0 dest-name= dest-namespace=tinyeh-ingestion dest-server=\"https://kubernetes.default.svc\" diff_ms=2 fields.level=1 git_ms=7 health_ms=0 live_ms=6 settings_ms=0 sync_ms=0 time_ms=41",
+#     "created_time" => "2021-10-27T17:12:49Z"
+# }
+
+
+
+logstashConfig:
+  logstash.yml: |
+    http.host: 0.0.0.0
+    xpack.monitoring.enabled: false
+logstashPipeline:
+  uptime.conf: |
+    input { stdin { } }
+
+    filter {
+      kv {
+        id => "kv-argocd"
+        target => "argocd"
+        source => "msg"
+        add_field => { "[@metadata][parsed]" => "True" }
+        whitespace => strict
+        }
+
+      mutate {
+        rename => {
+          "[argocd][time]" => "created_time"
+          "[argocd][level]" => "level"
+        }
+      }
+    }
+
+
+    output {
+      elasticsearch {
+        hosts => ["http://elasticsearch-master:9200"]
+        index => "logstash-debug"
+      }
+    }
+
