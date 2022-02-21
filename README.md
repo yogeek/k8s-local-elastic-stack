@@ -46,6 +46,21 @@ kubectl -n logging port-forward svc/kibana-kibana 5601
  - Click on "Create index pattern"
  - Go on "Discover" page to see audit logs : http://localhost:5601/app/discover
 
+
+## Traefik
+
+Deploy traefik after updating the `values-trafik.yaml` file according to your requirements:
+
+```bash
+./deploy-trafik.sh
+```
+
+Access trafik dashboard:
+
+```bash
+kubectl port-forward (kubectl get pod -l app.kubernetes.io/instance=traefik -o name | head -n 1) 9000:9000
+```
+
 ## Clean
 
 ```bash

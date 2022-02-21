@@ -10,5 +10,4 @@ helm repo update
 TIMEOUT=300s
 
 # Deploy Elatics (only 1 replica for 1 node kind cluster)
-helm upgrade -n traefik --create-namespace --wait --timeout=${TIMEOUT} --install traefik traefik/traefik \
-  --set logs.access.enabled=true
+helm upgrade -n traefik --create-namespace --wait --timeout=${TIMEOUT} --install traefik traefik/traefik -f values-traefik.yaml
