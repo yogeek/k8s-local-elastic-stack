@@ -30,7 +30,7 @@ logstashPipeline:
         elasticsearch {
           hosts => ["http://elasticsearch-master:9200"]
           manage_template => false
-          index => "traefik"
+          index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
           pipeline => "%{[@metadata][pipeline]}" 
         }
       } else {

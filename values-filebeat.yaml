@@ -21,14 +21,14 @@ daemonset:
           providers:
             - type: kubernetes
               templates:
-                - condition:
-                    equals:
-                      kubernetes.namespace: traefik
-                  config:
-                    - type: container
-                      paths:
-                        - /var/log/containers/*-${data.kubernetes.container.id}.log
-                      exclude_lines: ["^\\s+[\\-`('.|_]"]  # drop asciiart lines
+                # - condition:
+                #     equals:
+                #       kubernetes.namespace: traefik
+                #   config:
+                #     - type: container
+                #       paths:
+                #         - /var/log/containers/*-${data.kubernetes.container.id}.log
+                #       exclude_lines: ["^\\s+[\\-`('.|_]"]  # drop asciiart lines
 
 
               # TODO : see if "hints" can be interesting to avoid maintaining a complex configuration here
@@ -45,10 +45,11 @@ daemonset:
                   config:
                     - module: traefik
                       access:
+                        enabled: true
                         input: 
                           type: container
                           paths:
-                            - /var/lib/docker/containers/${data.kubernetes.container.id}/*.log
+                            - /data/access.log
                           exclude_lines: ["^\\s+[\\-`('.|_]"]  # drop asciiart lines
                           processors:
                             - add_fields:

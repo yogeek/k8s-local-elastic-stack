@@ -32,8 +32,8 @@ logs:
 
 # Additional arguments to be passed at Traefik's binary
 # All available options available on https://docs.traefik.io/reference/static-configuration/cli/
-# additionalArguments:
-#   - "--accesslog.filepath=/var/log/traefik/access.log"
+additionalArguments:
+  - "--accesslog.filepath=/data/access.log"
 
 # Use ingressClass. Ignored if Traefik version < 2.3 / kubernetes < 1.18.x
 ingressClass:
