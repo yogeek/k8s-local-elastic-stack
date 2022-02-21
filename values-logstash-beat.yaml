@@ -13,10 +13,31 @@ logstashPipeline:
           port => "5044"
       }
     }
+    filter {
+      # Drop useless events
+      if [message] =~ /GET \/healthz HTTP\/1\.1/ {
+        drop {}
+      }
+      else if [message] =~ /GET \/metrics HTTP\/1\.1 / {
+        drop {}
+      }
+      else if [message] =~ /GET \/ping HTTP\/1\.1 / {
+        drop {}
+      }
+    }
     output {
-      elasticsearch {
-        hosts => ["http://elasticsearch-master:9200"]
-        index => "logstash"
+      if [@metadata][beat] == "filebeat" and [event][module] == "traefik" and [project][name] == "apigw"  {
+        elasticsearch {
+          hosts => ["http://elasticsearch-master:9200"]
+          manage_template => false
+          index => "traefik"
+          pipeline => "%{[@metadata][pipeline]}" 
+        }
+      } else {
+        elasticsearch {
+          hosts => ["http://elasticsearch-master:9200"]
+          index => "logstash"
+        }
       }
       stdout {}
     }

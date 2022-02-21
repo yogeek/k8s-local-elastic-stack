@@ -54,13 +54,20 @@ https://www.elastic.co/guide/en/logstash/8.0/use-ingest-pipelines.html#use-inges
 To add a filebeat module when elastic is not directly a filebeat output (in the case filebeat->logstash->elastic), we must do this manually.
 Plus, this step needs elastic details to add the modules :
 
+(Execute these commands into the filebeat pod)
+
 ES_HOST="http://elasticsearch-master:9200"
+
+(In case of an authenticated elastisearch only)
 ES_USERNAME="$(kubectl get -n logging secrets/elasticsearch-master-credentials --template={{.data.username}} | base64 -d)"
 ES_PASSWORD="$(kubectl get -n logging secrets/elasticsearch-master-credentials --template={{.data.password}} | base64 -d)"
 
+filebeat modules enable traefik
 filebeat setup --pipelines --modules traefik \
     -E output.logstash.enabled=false \
     -E output.elasticsearch.hosts=["${ES_HOST}"] \
+
+(In case of an authenticated elastisearch only, add:)
     -E output.elasticsearch.username="${ES_USERNAME}" \
     -E output.elasticsearch.password="${ES_PASSWORD}"
 
@@ -83,10 +90,16 @@ Open : `http://localhost:9000/dashboard/`
 Deploy a sample application:
 
 ```bash
-kubectl apply -f trafik/whoami.yaml
+kubectl apply -f traefik-samples/whoami.yaml
 ```
 
+Access application via traefik service:
 
+```bash
+kubectl port-forward $(kubectl -n traefik get svc -l app.kubernetes.io/instance=traefik -o name) -n traefik 8080:80
+```
+
+Open : `http://localhost:8080/whoami/`
 
 ## Clean
 

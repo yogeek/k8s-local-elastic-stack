@@ -15,12 +15,11 @@ helm upgrade -n logging --create-namespace --wait --timeout=${TIMEOUT} --install
 # Deploy Filebeat
 helm upgrade -n logging --create-namespace --wait --timeout=${TIMEOUT} --install filebeat elastic/filebeat -f values-filebeat.yaml 
 
-# Deploy Kibana
-helm upgrade -n logging --create-namespace --wait --timeout=${TIMEOUT} --install kibana elastic/kibana
-
 # Deploy Logstash
 helm upgrade -n logging --create-namespace --wait --timeout=${TIMEOUT} --install logstash elastic/logstash -f values-logstash-beat.yaml
 
+# Deploy Kibana (quite long...)
+helm upgrade -n logging --create-namespace --wait --timeout=${TIMEOUT} --install kibana elastic/kibana
 
 # Wait for all pods to be running
 echo "Waiting for all pods to be ready..."
