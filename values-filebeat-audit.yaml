@@ -1,0 +1,29 @@
+---
+daemonset:
+  extraVolumes:
+  - hostPath:
+      path: /var/log/kubernetes
+      type: DirectoryOrCreate
+    name: k8s-audit-logs
+  extraVolumeMounts:
+  - name: k8s-audit-logs
+    mountPath: /var/log/kubernetes
+    readOnly: true
+  filebeatConfig:
+    filebeat.yml: |
+      filebeat:
+        inputs:
+        - type: log
+          enabled: true
+          paths:
+            - /var/log/kubernetes/kube-apiserver-audit.log
+          tags: ["audit", "k8s", "security"]
+      - decode_json_fields:
+          fields: ["message"]
+          process_array: false
+          max_depth: 1
+          target: "audit"
+          overwrite_keys: false
+          add_error_key: true
+      output.elasticsearch:
+        hosts: ["http://elasticsearch-master:9200"]
