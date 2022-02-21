@@ -1,0 +1,31 @@
+# persistence:
+#   enabled: true
+
+logstashConfig:
+  logstash.yml: |
+    http.host: 0.0.0.0
+    xpack.monitoring.enabled: false
+    pipeline.ecs_compatibility: disabled
+logstashPipeline:
+  logstash.conf: |
+    input {
+      beats {
+          port => "5044"
+      }
+    }
+    output {
+      stdout {}
+    }
+
+# Custom ports for beats
+extraPorts:
+  - name: beats
+    containerPort: 5044
+
+service:
+ type: ClusterIP
+ ports:
+   - name: beats
+     port: 5044
+     protocol: TCP
+     targetPort: 5044
