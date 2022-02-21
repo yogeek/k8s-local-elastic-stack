@@ -10,4 +10,8 @@ helm repo update
 TIMEOUT=300s
 
 # Deploy Elatics (only 1 replica for 1 node kind cluster)
-helm upgrade -n traefik --create-namespace --wait --timeout=${TIMEOUT} --install traefik traefik/traefik -f values-traefik.yaml
+# helm upgrade -n traefik --create-namespace -wait --timeout=${TIMEOUT} --install traefik traefik/traefik -f values-traefik.yaml
+helm upgrade -n traefik --create-namespace --install traefik traefik/traefik -f values-traefik.yaml
+
+# Exposing Dashboard
+# kubectl port-forward $(kubectl get pods --selector "app.kubernetes.io/name=traefik" --output=name) 9000:9000

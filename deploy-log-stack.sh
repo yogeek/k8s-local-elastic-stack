@@ -19,7 +19,7 @@ helm upgrade -n logging --create-namespace --wait --timeout=${TIMEOUT} --install
 helm upgrade -n logging --create-namespace --wait --timeout=${TIMEOUT} --install kibana elastic/kibana
 
 # Deploy Logstash
-helm upgrade -n logging --create-namespace --wait --timeout=${TIMEOUT} --install logstash elastic/logstash -f values-logstash.yaml
+helm upgrade -n logging --create-namespace --wait --timeout=${TIMEOUT} --install logstash elastic/logstash -f values-logstash-beat.yaml
 
 
 # Wait for all pods to be running
