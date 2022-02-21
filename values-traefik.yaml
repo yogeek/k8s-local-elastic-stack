@@ -14,11 +14,36 @@ logs:
   access:
     # To enable access logs
     enabled: true
+    # Fields
+    # https://docs.traefik.io/observability/access-logs/#limiting-the-fieldsincluding-headers
+    fields:
+      general:
+        defaultmode: keep
+        names: {}
+          # Examples:
+          # ClientUsername: drop
+      headers:
+        defaultmode: keep
+        names: {}
+          # Examples:
+          # User-Agent: redact
+          # Authorization: drop
+          # Content-Type: keep
 
 # Additional arguments to be passed at Traefik's binary
 # All available options available on https://docs.traefik.io/reference/static-configuration/cli/
-additionalArguments:
-  - "--accesslog.filepath=/var/log/traefik/access.log"
+# additionalArguments:
+#   - "--accesslog.filepath=/var/log/traefik/access.log"
+
+# Use ingressClass. Ignored if Traefik version < 2.3 / kubernetes < 1.18.x
+ingressClass:
+  enabled: true
+  isDefaultClass: false
+
+# ----------- Dashboard config
+ingressRoute:
+  dashboard:
+    enabled: true
 
 # Configure ports
 ports:
