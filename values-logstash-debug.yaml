@@ -1,10 +1,15 @@
-# persistence:
-#   enabled: true
+# Logstash configuration to debug filters:
+#  - input  = stdin
+#  - output = stdout
+
+# Logstash will wait for you to copy a log message in stdin and will output you the result of the parsing in stdout
 
 # Example to parse an argocd log on stdin:
 
 # INPUT :
 # time="2021-10-27T17:12:49Z" level=info msg="Reconciliation completed" application=tinyeh-metadata-ingestion.deploy dedup_ms=0 dest-name= dest-namespace=tinyeh-ingestion dest-server="https://kubernetes.default.svc" diff_ms=2 fields.level=1 git_ms=7 health_ms=0 live_ms=6 settings_ms=0 sync_ms=0 time_ms=41
+
+# FILTER (cf. in the code below)
 
 # RESULT :
 # {
@@ -48,7 +53,7 @@ logstashPipeline:
         source => "msg"
         add_field => { "[@metadata][parsed]" => "True" }
         whitespace => strict
-        }
+      }
 
       mutate {
         rename => {
@@ -57,7 +62,6 @@ logstashPipeline:
         }
       }
     }
-
 
     output {
       stdout {}

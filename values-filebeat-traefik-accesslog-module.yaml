@@ -1,0 +1,81 @@
+---
+daemonset:
+  enabled: true
+  extraVolumes:
+  - name: k8s-traefik-logs
+    hostPath:
+      path: /var/log/traefik/
+      type: DirectoryOrCreate
+  extraVolumeMounts:
+  - name: k8s-traefik-logs
+    mountPath: /var/log/traefik/
+    # subPath: traefik
+    readOnly: true
+  filebeatConfig:
+    filebeat.yml: |
+      logging.metrics.enabled: false
+      filebeat:
+
+        config.modules:
+          enabled: true
+          path: ${path.config}/modules.d/*.yml
+        
+        modules:
+        - module: traefik
+          access:
+            enabled: true
+            var.paths: ["/var/log/traefik/access.log"]
+
+        # autodiscover:
+        #   providers:
+        #     - type: kubernetes
+        #       templates:
+        #         - condition:
+        #             equals:
+        #               kubernetes.namespace: traefik
+        #           config:
+        #             - type: container
+        #               paths:
+        #                 - /var/log/traefik/access.log
+        #                 # - /var/log/containers/*-${data.kubernetes.container.id}.log
+        #               exclude_lines: ["^\\s+[\\-`('.|_]"]  # drop asciiart lines
+
+
+              # TODO : see if "hints" can be interesting to avoid maintaining a complex configuration here
+              # This would allow to configure filebeat at k8s namespace level or pod level with annotations
+              # https://www.elastic.co/guide/en/beats/filebeat/current/configuration-autodiscover-hints.html
+              # hints.enabled: true
+
+                ## ------------------ TRAEFIK module
+                # - condition:
+                #     and:
+                #       - has_fields: ['kubernetes.container.id']
+                #       - contains:
+                #           kubernetes.namespace: traefik
+                #   config:
+                #     - module: traefik
+                #       access:
+                #         enabled: true
+                #         input: 
+                #           type: container
+                #           paths:
+                #             - /var/log/traefik/access.log
+                #           exclude_lines: ["^\\s+[\\-`('.|_]"]  # drop asciiart lines
+                #           processors:
+                #             - add_fields:
+                #                 target: project
+                #                 fields:
+                #                   name: apigw
+                #                   application: traefik
+
+      processors:
+      - add_host_metadata:
+      
+      # - add_kubernetes_metadata:
+      #     host: ${NODE_NAME}
+      # - drop_event:
+      #     when.equals:
+      #       kubernetes.container.name: "filebeat"
+
+      output.logstash:
+        hosts: ["logstash-logstash:5044"]

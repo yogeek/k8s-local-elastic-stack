@@ -40,6 +40,9 @@ kind: IngressRoute
 metadata:
   name: whoami-web
   namespace: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
 spec:
   entryPoints:
     - web

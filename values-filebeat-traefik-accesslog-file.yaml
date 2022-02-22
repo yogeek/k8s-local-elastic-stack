@@ -1,0 +1,28 @@
+---
+daemonset:
+  enabled: true
+  extraVolumes:
+  - name: k8s-traefik-logs
+    hostPath:
+      path: /var/log/traefik/
+      type: DirectoryOrCreate
+  extraVolumeMounts:
+  - name: k8s-traefik-logs
+    mountPath: /var/log/traefik/
+    # subPath: traefik
+    readOnly: true
+  filebeatConfig:
+    filebeat.yml: |
+      logging.metrics.enabled: false
+      filebeat:
+        
+        inputs:
+        - type: filestream
+          paths:
+            - /var/log/traefik/access.log
+
+      processors:
+      - add_host_metadata:
+
+      output.logstash:
+        hosts: ["logstash-logstash:5044"]

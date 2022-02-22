@@ -1,5 +1,4 @@
-# persistence:
-#   enabled: true
+# Minimalist Logstash conf that sends an uptime every 30s to test the ELK stask (Logstash=>Elastic<=Kibana) 
 
 logstashConfig:
   logstash.yml: |

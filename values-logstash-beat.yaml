@@ -13,32 +13,42 @@ logstashPipeline:
           port => "5044"
       }
     }
+
     filter {
+
       # Drop useless events
-      if [message] =~ /GET \/healthz HTTP\/1\.1/ {
+      if [message] =~ /ping/ {
         drop {}
       }
-      else if [message] =~ /GET \/metrics HTTP\/1\.1 / {
-        drop {}
+
+      json {
+        id => "json-traefik"
+        source => "message"
+        target => "app"
+        skip_on_invalid_json => "true"
       }
-      else if [message] =~ /GET \/ping HTTP\/1\.1 / {
-        drop {}
+
+      mutate {
+        rename => {
+          "[app][ServiceName]" => "traefikService"
+          "[app][DownstreamStatus]" => "frontendStatusCode"
+          "[app][OriginStatus]" => "backendStatusCode"
+        }
       }
+
+      prune {
+        blacklist_names => [ "app" ]
+      }
+
     }
+
     output {
-      if [@metadata][beat] == "filebeat" and [event][module] == "traefik" and [project][name] == "apigw"  {
-        elasticsearch {
-          hosts => ["http://elasticsearch-master:9200"]
-          manage_template => false
-          index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
-          pipeline => "%{[@metadata][pipeline]}" 
-        }
-      } else {
-        elasticsearch {
-          hosts => ["http://elasticsearch-master:9200"]
-          index => "logstash"
-        }
+      elasticsearch {
+        hosts => ["http://elasticsearch-master:9200"]
+        pipeline => "%{[@metadata][pipeline]}"
+        index => "logstash"
       }
+      # Additionnal output for debug purposes
       stdout {}
     }
 
@@ -47,10 +57,11 @@ extraPorts:
   - name: beats
     containerPort: 5044
 
+# Custom service for beats input
 service:
- type: ClusterIP
- ports:
-   - name: beats
-     port: 5044
-     protocol: TCP
-     targetPort: 5044
+  type: ClusterIP
+  ports:
+    - name: beats
+      port: 5044
+      protocol: TCP
+      targetPort: 5044

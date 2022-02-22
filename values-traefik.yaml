@@ -31,23 +31,44 @@ logs:
           # Content-Type: keep
 
 # Additional arguments to be passed at Traefik's binary
-# All available options available on https://docs.traefik.io/reference/static-configuration/cli/
+# All available options available on https://docs.traefik.io/reference/static-configuration/cli
+
+# We choose to separate Traefik access logs from the Traefik container logs
+# Format=JSON : WARNING: with this format, the "traefik" filebeat module will not work
+#               => a JSON filter should be used instead
 additionalArguments:
-  - "--accesslog.filepath=/data/access.log"
+  - "--accesslog.filepath=/var/log/traefik/access.log"
+  - "--accesslog.format=json"
+
+
+deployment:
+  additionalVolumes:
+    - name: traefik-logs
+      hostPath:
+        # We mount traefik access logs as a path on the host in order to be readable by filebeat
+        # (filebeat must also mount this directory to access to the log file on his side)
+        path: /var/log/traefik
+        type: DirectoryOrCreate
+
+# Additional volumeMounts to add to the Traefik container
+additionalVolumeMounts:
+  # Will be used by filebeat to read access logs
+  - name: traefik-logs
+    mountPath: /var/log/traefik
 
 # Use ingressClass. Ignored if Traefik version < 2.3 / kubernetes < 1.18.x
 ingressClass:
   enabled: true
   isDefaultClass: false
 
-# ----------- Dashboard config
+# ----------- Dashboard config : create an ingressRoute for Traefik Dashboard
 ingressRoute:
   dashboard:
     enabled: true
 
 # Configure ports
 ports:
-  # Dashboard (do not expose in production)
+  # Expose Traefik dashboard (do not keep this in production)
   traefik:
     port: 9000
     expose: true
