@@ -1,17 +1,11 @@
-# k8s-audit-kind
+# K8S Local Elastic Stack 
 
-This repository allows testing K8S audit logs configuration by offering a simple way to visualize these logs with ElasticStack on a kind cluster.
+This repository can be used to parse and display any kubernetes component logs in Elastic Stack on a local kind cluster.
+Some examples are also included :
+- K8S audit logs
+- Traefik logs
 
-Documentation links:
-
-- https://kubernetes.io/docs/tasks/debug-application-cluster/audit/
-- https://kind.sigs.k8s.io/docs/user/auditing/
-
-## Setup
-
-- Edit the `audit-policy.yaml` according to your needs.
-
-NOTE: The `kind-config.yaml` specify an extraMounts to make the audit config file avalailable into the kind docker container.
+## Usage
 
 - Start the cluster
 
@@ -39,6 +33,23 @@ kubectl -n logging port-forward svc/kibana-kibana 5601
   - Chosse `@timestamp` as "Timestamp field"
   - Click on "Create index pattern"
   - Go on "Discover" page to see audit logs : http://localhost:5601/app/discover
+
+## Audit Logs
+
+- Edit the `audit-policy.yaml` according to your needs.
+
+NOTE: The `kind-config.yaml` specify an extraMounts to make the audit config file avalailable into the kind docker container.
+
+- Follow the steps in "Usage" section
+
+Documentation links for K8S Audit logs:
+
+- https://kubernetes.io/docs/tasks/debug-application-cluster/audit/
+- https://kind.sigs.k8s.io/docs/user/auditing/
+
+## Traefik logs
+
+cf. [TRAEFIK_LOGS.md](./TRAEFIK_LOGS.md)
 
 ## Clean
 

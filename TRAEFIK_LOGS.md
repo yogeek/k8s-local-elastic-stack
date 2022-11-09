@@ -1,6 +1,6 @@
 # Traefik Logs
 
-This repository can also be used to parse and display any kubernetes component logs in the Elastic Stack, 
+This repository can also be used to parse and display any kubernetes component logs in the Elastic Stack.
 Here is an example to collect Traefik access logs.
 
 ## Setup
